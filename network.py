@@ -83,7 +83,7 @@ Data_0 = Data_Highschool[Data_Highschool.t=='1']
 #list_I_0 = Data_0.i.drop_duplicates() #出现在t=1时的i点
 list_I_0 = list(G.nodes)
 #list_seed = map(eval, list_I_0)
-list_I_0.index = range(len(list_I_0))
+#list_I_0.index = range(len(list_I_0))
 
 list_num_infected_nodes = [] #记录了以N个点为seed node时，在每个T steps的infected nodes的个数
 
