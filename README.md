@@ -1,6 +1,6 @@
 # ComplexNetwork
 
-network.py 是第二部分对代码
+network.py 是第二部分的代码
 
 R_degree_cluster.csv是每个点的influence，degree，clustering coefficient对集合
 
