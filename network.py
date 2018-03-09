@@ -1,5 +1,6 @@
 import pandas
 import pandas as pd
+from pandas import DataFrame,Series
 import os
 import numpy as np
 import networkx as nx
@@ -111,7 +112,7 @@ for i in range(len(list_I_0)):
     list_num_infected_nodes.append(length)
     print("len of infected nodes when seed is" + list_I_0[i] + ":" + str(len(set_I)))
 
-fileObject = open('/Users/lizy/Desktop/Number_of_infected_nodes.txt', 'w')
+fileObject = open('/Users/lizy/Desktop/Number_of_infected_nodes_all.txt', 'w')
 for length in list_num_infected_nodes:
     for len_t in length:
         fileObject.write(str(len_t))
@@ -119,19 +120,50 @@ for length in list_num_infected_nodes:
     fileObject.write('\n')
 fileObject.close()
 
+matrix = np.array(list_num_infected_nodes).T #转化为T*N的矩阵
+matrix = np.delete(matrix,1,0)
+mean_T = np.mean(matrix, axis=1) # 计算每一行的均值
+variance_T = np.std(matrix, axis=1)
 
-mean = []
-var = []
-for t in range(1,int(list(Data_Highschool.t)[-1])+1):
-    sum = 0
-    variance = 0
-    for i in range(len(list_I_0)):
-        sum = sum + list_num_infected_nodes[i][t]
-    sum = sum/float(len(list_I_0))
-    mean.append(sum)
+x = range(1,int(list(Data_Highschool.t)[-1])+1)
+fig, axes = plt.subplots(nrows=1, ncols=1)
+axes.plot(x, mean_T,label="Mean",color="red",linewidth=2)
+axes.plot(x, variance_T,label="Variance",color="blue",linewidth=1)
+axes.set_xlabel("Step(t)")
+axes.set_title("Average number of infected nodes and its variance")
+axes.legend(loc=4)
+plt.show()
 
-    for i in range(len(list_I_0)):
-        variance = variance + (list_num_infected_nodes[i][t] - sum) ** 2
-    variance = (variance/float(len(list_I_0)))**0.5
-    var.append(variance)
 
+#calculate influence(the shortest time to reach 80% of the total nodes)
+find = 0.8*G.number_of_nodes()
+shortest_step = []
+for i in range(len(list_I_0)):
+    length = list_num_infected_nodes[i]
+    step = [ind for ind,v in enumerate(length) if v>=find]
+    if step!=[]:
+        shortest_step.append(step[0])
+    else:
+        shortest_step.append(10000)
+
+df_shortest_step = DataFrame({"node":list(G.nodes),"shortest_time":shortest_step})
+df_influence = df_shortest_step.sort_values(by='shortest_time')
+df_influence.index = range(len(df_influence))
+
+# explore the correlation between network features(degree and clustering coefficient) and influence
+
+#degree
+nodes_deg_list = [n for n, d in G.degree()]
+degree_list = [d for n, d in G.degree()]
+
+degree_sequence = DataFrame({"node":nodes_deg_list,"degree":degree_list})
+
+#clustering coefficient
+nodes_clu_list = nx.clustering(G).keys()
+cluster_list = nx.clustering(G).values()
+cluster_sequence = DataFrame({"node":nodes_clu_list,"cluster_coefficient":cluster_list})
+
+R_D = pd.merge(df_influence,degree_sequence,on=['node'],how='outer')
+R_D_C = pd.merge(R_D,cluster_sequence,on=['node'],how='outer')
+
+R_D_C.to_csv("/Users/lizy/Downloads/Q3/Complex_Network/assignment/R_degree_cluster.csv")
