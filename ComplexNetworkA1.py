@@ -207,5 +207,4 @@ def rec_dd():
 
 if __name__ == '__main__':
 	results = network()
-	def rec_dd():
-		return defaultdict(rec_dd)
+
