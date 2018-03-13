@@ -83,14 +83,18 @@ class network:
 			print('time', time)
 
 		betweenness = np.load('betweenness_centrality.npy')
+
+		time_max = max(self.time_set)
+		count_dict = defaultdict(float)
 		for time in betweenness.item():
-			for a_list in betweenness.item().get(time):
-				for item in a_list:
-					print item
+			for node, centrality in betweenness.item()[time]:
+				# for  in a_dict.item():
+				count_dict[node] += centrality
 
-
-
-
+		for key in count_dict:
+			count_dict[key] = count_dict[key] * 1.0 /time_max
+		print("len of count_dict", len(count_dict))
+		np.save("count_dict.npy", count_dict)
 
 		# nx.draw(g,node_size = 1.5)#with_labels=True
 		# plt.draw()
